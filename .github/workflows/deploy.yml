@@ -1,0 +1,39 @@
+name: Deploy SwipeClean
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build iOS
+        if: github.event_name == 'workflow_dispatch' || contains(github.ref, 'main')
+        run: |
+          eas build --platform ios --profile production --non-interactive --no-wait
+      
+      - name: Build Android
+        if: github.event_name == 'workflow_dispatch' || contains(github.ref, 'main')
+        run: |
+          eas build --platform android --profile production --non-interactive --no-wait
+

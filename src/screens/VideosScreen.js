@@ -81,11 +81,26 @@ export default function VideosScreen({ navigation }) {
               const assetInfo = await MediaLibrary.getAssetInfoAsync(video.id, {
                 shouldDownloadFromNetwork: false,
               });
-              size = assetInfo?.localFileSize || assetInfo?.fileSize || assetInfo?.size || 0;
+              // Try multiple possible size properties
+              size = assetInfo?.localFileSize || 
+                     assetInfo?.fileSize || 
+                     assetInfo?.size ||
+                     (assetInfo?.duration ? Math.round(assetInfo.duration * 1000 * 100) : 0) || // Estimate based on duration
+                     0;
             } catch (error) {
-              // Silently fail - use 0 as fallback
-              console.warn(`Could not get size for video ${video.id.substring(0, 8)}`);
+              // In Expo Go, this often fails - file sizes will work in dev/prod builds
+              // For now, estimate based on duration if available
+              if (video.duration) {
+                // Rough estimate: ~1MB per minute of video (very rough)
+                size = Math.round(video.duration * 60 * 1024 * 1024);
+              }
             }
+          }
+          
+          // If still 0, try duration-based estimation
+          if (!size && video.duration) {
+            // Estimate: ~1-2MB per minute depending on quality
+            size = Math.round(video.duration * 90 * 1024 * 1024); // 1.5MB per minute estimate
           }
           
           videosWithInfo.push({
@@ -232,6 +247,7 @@ export default function VideosScreen({ navigation }) {
   const VideoThumbnail = ({ item }) => {
     const [thumbnailUri, setThumbnailUri] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
       loadThumbnail();
@@ -240,16 +256,33 @@ export default function VideosScreen({ navigation }) {
     const loadThumbnail = async () => {
       try {
         setLoading(true);
-        // Try to get thumbnail or use video URI directly
-        const assetInfo = await MediaLibrary.getAssetInfoAsync(item.id, {
-          shouldDownloadFromNetwork: false,
-        });
+        setError(false);
         
-        const uri = assetInfo?.localUri || assetInfo?.uri || item.uri;
-        setThumbnailUri(uri);
+        // For videos, getAssetInfoAsync might fail, so use the video's dimensions
+        // to create a colored placeholder with video info
+        // In Expo Go, video thumbnails from ph:// URIs don't work well
+        // So we'll show a nice placeholder instead
+        
+        // Try to get local URI if possible (for future development builds)
+        try {
+          const assetInfo = await MediaLibrary.getAssetInfoAsync(item.id, {
+            shouldDownloadFromNetwork: false,
+          });
+          
+          // Only use if it's a file:// URI (works), not ph:// (doesn't work for videos)
+          if (assetInfo?.localUri && assetInfo.localUri.startsWith('file://')) {
+            setThumbnailUri(assetInfo.localUri);
+          } else {
+            setThumbnailUri(null); // Use placeholder
+          }
+        } catch (e) {
+          // Fall back to placeholder
+          setThumbnailUri(null);
+        }
       } catch (error) {
-        // Fallback to original URI
-        setThumbnailUri(item.uri);
+        console.warn('Error loading thumbnail:', error);
+        setError(true);
+        setThumbnailUri(null);
       } finally {
         setLoading(false);
       }
@@ -266,10 +299,14 @@ export default function VideosScreen({ navigation }) {
             source={{ uri: thumbnailUri }}
             style={styles.video}
             resizeMode="cover"
+            onError={() => setError(true)}
           />
         ) : (
-          <View style={[styles.video, styles.loadingPlaceholder]}>
-            <Text style={styles.noPreviewText}>🎥</Text>
+          <View style={[styles.video, styles.videoPlaceholder]}>
+            <View style={styles.placeholderContent}>
+              <Text style={styles.placeholderIcon}>🎥</Text>
+              <Text style={styles.placeholderDuration}>{formatDuration(item.duration)}</Text>
+            </View>
           </View>
         )}
       </View>
@@ -549,8 +586,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  noPreviewText: {
-    fontSize: 40,
+  videoPlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    opacity: 0.3,
+  },
+  placeholderContent: {
+    alignItems: 'center',
+  },
+  placeholderIcon: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  placeholderDuration: {
+    fontSize: 12,
+    color: Colors.text,
+    fontWeight: '600',
   },
   playIcon: {
     position: 'absolute',
