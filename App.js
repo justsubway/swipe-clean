@@ -11,7 +11,6 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import SessionSummaryScreen from './src/screens/SessionSummaryScreen';
 import FavoritesScreen from './src/screens/FavoritesScreen';
 import ReviewDeletionsScreen from './src/screens/ReviewDeletionsScreen';
-import VideosScreen from './src/screens/VideosScreen';
 import { Colors } from './src/constants/colors';
 
 const Stack = createNativeStackNavigator();
@@ -117,14 +116,6 @@ export default function App() {
               component={ReviewDeletionsScreen}
               options={{
                 title: 'Review Deletions',
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen 
-              name="Videos" 
-              component={VideosScreen}
-              options={{
-                title: 'Videos',
                 headerShown: false,
               }}
             />

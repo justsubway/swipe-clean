@@ -169,15 +169,6 @@ export default function DashboardScreen({ navigation }) {
             <Text style={styles.quickModeTitle}>Low Quality</Text>
             <Text style={styles.quickModeSubtext}>Blurry photos</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.quickModeCard}
-            onPress={() => navigation.navigate('Videos')}
-          >
-            <Text style={styles.quickModeIcon}>🎥</Text>
-            <Text style={styles.quickModeTitle}>Videos</Text>
-            <Text style={styles.quickModeSubtext}>Sorted by size</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
