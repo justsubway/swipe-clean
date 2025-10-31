@@ -1,29 +1,55 @@
 {
   "expo": {
-    "name": "mapview",
-    "slug": "mapview",
+    "name": "SwipeClean",
+    "slug": "swipeclean",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#00C6AE"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "SwipeClean needs access to your photos to help you organize and clean up your storage by identifying duplicates and similar images.",
+        "NSPhotoLibraryAddUsageDescription": "SwipeClean needs access to save your favorites."
+      },
+      "bundleIdentifier": "com.swipeclean.app"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#00C6AE"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ],
+      "package": "com.swipeclean.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SwipeClean needs access to your photos to help organize and clean up your storage."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow SwipeClean to access your photos.",
+          "savePhotosPermission": "Allow SwipeClean to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ]
   }
 }
+
