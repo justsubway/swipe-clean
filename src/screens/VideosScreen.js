@@ -444,35 +444,27 @@ export default function VideosScreen({ navigation }) {
             </TouchableOpacity>
             
             <View style={styles.previewContent}>
-              <TouchableOpacity 
-                style={styles.previewVideoContainer}
-                onPress={() => {
-                  // Could open native video player here if needed
-                  console.log('Video URI:', previewVideo.uri);
-                }}
-                activeOpacity={1}
-              >
-                <Image
-                  source={{ uri: previewVideo.uri }}
-                  style={styles.previewImage}
-                  resizeMode="contain"
-                />
-                <View style={styles.previewPlayOverlay}>
-                  <Text style={styles.previewPlayIcon}>▶</Text>
+              <View style={styles.previewVideoContainer}>
+                <View style={styles.previewPlaceholder}>
+                  <Text style={styles.previewPlaceholderIcon}>🎥</Text>
+                  <Text style={styles.previewPlaceholderText}>
+                    {formatDuration(previewVideo.duration)}
+                  </Text>
                 </View>
-              </TouchableOpacity>
+              </View>
               <View style={styles.previewInfo}>
                 <Text style={styles.previewInfoText}>
-                  Duration: {formatDuration(previewVideo.duration)}
+                  ⏱ Duration: {formatDuration(previewVideo.duration)}
                 </Text>
                 <Text style={styles.previewInfoText}>
-                  Size: {formatBytes(previewVideo.size)}
+                  📦 Size: {formatBytes(previewVideo.size)}
+                  {previewVideo.size === 0 && ' (estimated)'}
                 </Text>
                 <Text style={styles.previewInfoText}>
-                  Dimensions: {previewVideo.width} x {previewVideo.height}
+                  📐 Dimensions: {previewVideo.width} x {previewVideo.height}
                 </Text>
                 <Text style={styles.previewHintText}>
-                  Tap to open video
+                  Note: Video preview requires development build
                 </Text>
               </View>
             </View>
@@ -707,25 +699,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    backgroundColor: Colors.primary,
+    borderRadius: 16,
+    opacity: 0.8,
   },
-  previewImage: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: Colors.accent,
-  },
-  previewPlayOverlay: {
-    position: 'absolute',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'center',
+  previewPlaceholder: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  previewPlayIcon: {
+  previewPlaceholderIcon: {
+    fontSize: 80,
+    marginBottom: 16,
+  },
+  previewPlaceholderText: {
+    fontSize: 24,
     color: Colors.background,
-    fontSize: 36,
-    marginLeft: 4,
+    fontWeight: 'bold',
   },
   previewInfo: {
     marginTop: 20,
